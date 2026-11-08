@@ -42,5 +42,5 @@ def menu():
 
 menu()
 
-#vamo verMEUI DEUSSSSSSSSSSSSSS boa 
-#bora bill
+#aaaaaaaaaaa
+

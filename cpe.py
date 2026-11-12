@@ -43,4 +43,4 @@ def menu():
 menu()
 
 #aaaaaaaaaaa
-print('')
+print('ISRAEL')

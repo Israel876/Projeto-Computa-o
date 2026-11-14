@@ -31,7 +31,48 @@ def listar_estoque(rolos):
     for r in rolos:
         print(f"[{r['id']}] {r['material']} {r['cor']} - "
               f"{r['gramas_restantes']:.0f} g restantes")
-        
+
+# Orçamento
+def perguntar_número(texto, atual=None):    # Ex: Preço do kWh (R$)
+    # Pergunta um número ao usuário.
+    # Se já existe um valor atual, mostra entre colchetes e, se o usuário
+    # só apertar Enter, mantém esse valor.
+    if atual is None:
+        resposta = input(f"{texto}: ").strip()
+    else:
+        resposta = input(f"{texto} [atual: {atual}]: ").strip()
+        if resposta == "":
+            return atual
+
+    # Troca vírgula por ponto, porque no Brasil se digita 0,85 e o float() só entende 0.85
+    return float(resposta.replace(",", "."))
+
+def pedir_configurações(configurações):
+    # .get() devolve None se a chave ainda não existe (primeira vez),
+    # e devolve o valor guardado se já existe.
+    # A função altera o dicionário que recebeu, sem precisar de return.
+    configurações["potência_w"] = perguntar_número(
+        "Potência da impressora (W)", configurações.get("potência_w"))
+    configurações["preço_kwh"] = perguntar_número(
+        "Preço do kWh (R$)", configurações.get("preço_kwh"))
+    configurações["margem_percentual"] = perguntar_número(
+        "Margem de lucro (%)", configurações.get("margem_percentual"))
+
+def calcular_custo_filamento(rolo, gramas):
+    # Primeiro acha quanto custa 1 grama deste rolo, depois multiplica pelas gramas da peça
+    preço_por_grama = rolo["preço"] / rolo["peso_inicial"]
+    return preço_por_grama * gramas
+
+def calcular_custo_energia(horas, potência_w, preço_kwh):
+    # Converte watts para quilowatts (o preço da conta de luz é por kWh)
+    potência_kw = potência_w / 1000
+    return potência_kw * horas * preço_kwh
+
+def calcular_preço_final(filamento, energia, margem_percentual):
+    # Converte a porcentagem digitada (20) para fração (0.20) e aplica sobre o custo total
+    margem = margem_percentual / 100
+    return (filamento + energia) * (1 + margem)
+    
 # Menu
 def menu():
     # Lista que guarda todos os rolos cadastrados (cada rolo é um dicionário)
@@ -59,9 +100,11 @@ def menu():
 
             case 1:
                 print("\nOpa chefe! Vamos verificar seu estoque!")
+                listar_estoque(rolos)    # mostra os rolos cadastrados
 
             case 2:
                 print("\nCadastro de novo material")
+                cadastrar_rolo(rolos)   # pede os dados e adiciona o rolo à lista
 
             case 3:
                 print("\nVamos criar um pedido!")
